@@ -1,174 +1,102 @@
-YOLO Keypoint Simulation ROS2 Package
-📌 Overview
+# Human Pose Estimation & Gesture Control with YOLOv8 + ROS2
 
-This project implements a ROS2-based human pose keypoint detection and simulation system using YOLOv8 Pose Estimation. The package processes pose keypoints, performs 3D estimation, applies filtering, visualizes skeleton markers, and converts gestures into robot velocity commands.
+> A robotics project built during my MSc in Artificial Intelligence — combining real-time computer vision with robot simulation in Gazebo/RViz2.
 
-The system is designed for robotics applications such as:
+---
 
-Human gesture control
+## What this project does
 
-Human pose tracking
+This package detects a person's body pose using a camera feed, estimates where each joint is in 3D space, and translates specific gestures into velocity commands that drive a robot. Everything runs inside a simulated environment using ROS2, Gazebo, and RViz2 — no physical robot needed.
 
-Human-robot interaction
+I built this to understand how perception pipelines work in robotics: from raw image input, through a neural network, through filtering, all the way to an actuator command. That full pipeline is something I wanted to experience hands-on.
 
-Simulation-based robotics research
+---
 
-🧰 Features
+## Tech Stack
 
-YOLOv8 pose detection integration
+| Tool | Purpose |
+|------|---------|
+| ROS2 (Humble) | Robot middleware & node communication |
+| YOLOv8 Pose (`yolov8n-pose.pt`) | Real-time human keypoint detection |
+| Kalman Filter | Smooth noisy 3D keypoint estimates |
+| Gazebo + RViz2 | Simulation & visualization |
+| Python 3.10 | All node logic |
 
-3D keypoint estimation
+---
 
-Kalman filter smoothing
+## How it works
 
-Skeleton visualization using RViz markers
+1. **YOLOv8 node** — detects 17 body keypoints from a camera image
+2. **3D estimation node** — projects 2D keypoints into 3D using depth approximation
+3. **Kalman filter node** — smooths the 3D positions to remove jitter
+4. **Skeleton visualization** — publishes RViz markers so you can see the skeleton live
+5. **Gesture-to-velocity node** — maps specific poses (e.g., arms raised) to `cmd_vel` commands
 
-TF broadcasting for robot frames
+All nodes communicate over ROS2 topics. Launch the whole system with one command:
 
-Gesture-to-velocity command conversion
+```bash
+ros2 launch yolo_keypoint_sim full_system.launch.py
+```
 
-Full system ROS2 launch support
+---
 
-🏗️ Project Structure
+## Project Structure
+
+```
 ros2_ws/
-│
-├── src/
-│   ├── yolo_keypoint_sim/
-│   │   ├── launch/
-│   │   │   └── full_system.launch.py
-│   │   ├── yolo_keypoint_sim/
-│   │   │   ├── kalman_3d_node.py
-│   │   │   ├── skeleton_marker_node.py
-│   │   │   ├── skeleton_bones_node.py
-│   │   │   ├── keypoints_tf_broadcaster.py
-│   │   │   ├── keypoints_to_markers.py
-│   │   │   └── gesture_to_cmdvel.py
-│   │   ├── requirements.txt
-│   │   ├── package.xml
-│   │   └── setup.py
-│
-├── yolov8n-pose.pt
+└── src/
+    └── yolo_keypoint_sim/
+        ├── launch/
+        │   └── full_system.launch.py
+        └── yolo_keypoint_sim/
+            ├── kalman_3d_node.py          # 3D smoothing
+            ├── skeleton_marker_node.py    # RViz visualization
+            ├── skeleton_bones_node.py     # Bone connections
+            ├── keypoints_tf_broadcaster.py # TF frames
+            ├── keypoints_to_markers.py    # Marker conversion
+            └── gesture_to_cmdvel.py       # Robot control
+```
 
-⚙️ Requirements
-Software
+---
 
-ROS2 (Humble / Iron / Rolling recommended)
+## Setup & Running
 
-Python 3.10+
-
-OpenCV
-
-Ultralytics YOLOv8
-
-RViz2
-
-Python Dependencies
-
-Install dependencies:
-
+```bash
+# 1. Install Python dependencies
 pip install -r ros2_ws/src/yolo_keypoint_sim/requirements.txt
 
-📥 Installation
-1️⃣ Clone or Extract Project
-cd ~
-unzip yolo_keypoint_sim.zip
-
-2️⃣ Navigate to Workspace
+# 2. Build the workspace
 cd ros2_ws
-
-3️⃣ Install ROS Dependencies
-rosdep install --from-paths src --ignore-src -r -y
-
-4️⃣ Build Workspace
 colcon build
-
-5️⃣ Source Workspace
 source install/setup.bash
 
-▶️ Running the System
-
-Launch the full system:
-
+# 3. Launch everything
 ros2 launch yolo_keypoint_sim full_system.launch.py
 
-🤖 Node Descriptions
-kalman_3d_node
-
-Applies Kalman filtering to smooth 3D keypoint estimation.
-
-skeleton_marker_node
-
-Publishes visualization markers for detected skeleton joints.
-
-skeleton_bones_node
-
-Connects keypoints to create skeleton bone visualization.
-
-keypoints_tf_broadcaster
-
-Broadcasts keypoint transforms using ROS TF.
-
-keypoints_to_markers
-
-Converts keypoints into visualization markers for RViz.
-
-gesture_to_cmdvel
-
-Converts human gestures into robot velocity commands (cmd_vel).
-
-📊 Visualization
-
-Run RViz2 to visualize skeleton tracking:
-
+# 4. Open RViz2 and add Marker + TF topics to visualize
 rviz2
+```
 
+**Requirements:** ROS2 Humble/Iron, Python 3.10+, OpenCV, Ultralytics YOLOv8
 
-Add:
+---
 
-Marker Topics
+## What I learned
 
-TF Frames
+- How to structure a multi-node ROS2 package from scratch
+- Integrating a pre-trained YOLO model into a real-time ROS2 pipeline
+- Applying Kalman filtering to reduce noise in pose estimation
+- Publishing custom visualization markers in RViz2
+- Translating high-level perception data into low-level robot commands
 
-🧠 Model Used
-yolov8n-pose.pt
+---
 
+## Author
 
-Ultralytics lightweight pose estimation model.
+**Mohammed Imran Ibrahim**  
+MSc Artificial Intelligence — Berlin School of Business and Innovation  
+[LinkedIn](https://www.linkedin.com/in/imm4n) | mohammed.imran0306@gmail.com
 
-🔧 Customization
+---
 
-You can:
-
-Replace YOLO model
-
-Modify gesture mapping logic
-
-Extend skeleton visualization
-
-Integrate with real robot hardware
-
-🧪 Testing
-
-Run code style and validation tests:
-
-colcon test
-
-🚀 Applications
-
-Gesture-controlled mobile robots
-
-Autonomous robot navigation
-
-Rehabilitation robotics
-
-AI human motion tracking research
-
-👨‍💻 Author
-
-Mohammed Imran Ibrahim
-MSc Artificial Intelligence
-International University of Applied Sciences Berlin
-
-📜 License
-
-This project is for educational and research purposes.
+*This project is for educational and research purposes.*
