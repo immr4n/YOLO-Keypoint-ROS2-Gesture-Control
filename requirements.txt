@@ -1,0 +1,11 @@
+# ROS2 Python dependencies for YOLO Keypoint + ROS2 Gesture Control
+ultralytics>=8.0.0
+opencv-python>=4.8.0
+numpy>=1.24.0
+scipy>=1.10.0
+pyrealsense2>=2.54.0
+transformations>=2022.9.26
+visualization-msgs
+sensor-msgs
+geometry-msgs
+std-msgs
